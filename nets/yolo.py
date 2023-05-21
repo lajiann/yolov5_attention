@@ -16,8 +16,10 @@ attention_blocks = [se_block, cbam_block, eca_block]
 #   yolo_body
 #---------------------------------------------------#
 class YoloBody(nn.Module):
-    def __init__(self, anchors_mask, num_classes, phi, sel = 1, backbone='cspdarknet', pretrained=False, input_shape=[640, 640]):
+    def __init__(self, anchors_mask, num_classes, phi,  backbone='cspdarknet', pretrained=False, input_shape=[640, 640]):
         super(YoloBody, self).__init__()
+        sel = 1
+        self.sel = sel
         depth_dict          = {'s' : 0.33, 'm' : 0.67, 'l' : 1.00, 'x' : 1.33,}
         width_dict          = {'s' : 0.50, 'm' : 0.75, 'l' : 1.00, 'x' : 1.25,}
         dep_mul, wid_mul    = depth_dict[phi], width_dict[phi]
@@ -80,7 +82,7 @@ class YoloBody(nn.Module):
         self.yolo_head_P5 = nn.Conv2d(base_channels * 16, len(anchors_mask[0]) * (5 + num_classes), 1)
 
         #添加注意力机制并选择
-        self.sel = sel
+        
         if sel >= 1 and sel <= 3:
              self.feat1_attention = attention_blocks[sel - 1](256)
              self.feat3_attention = attention_blocks[sel - 1](1024)
